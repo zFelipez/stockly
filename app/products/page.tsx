@@ -1,14 +1,15 @@
-import { PlusIcon } from "lucide-react";
-import { Button } from "../_components/ui/button";
+ 
 
 import { DataTable } from "../_components/ui/data-table";
 import { productsTableColumns } from "./_components/table-columns";
 import { getProduct } from "../_data-access/product/get-product";
+import CreateProductButton from "./_components/create-product-button";
  
 
+export const dynamic = "force-dinamic";
+
 async function Products() {
-  
-  const products  =  await getProduct();
+  const products = await getProduct();
 
   return (
     <div className="w-full space-y-8  bg-white m-8 p-8 rounded">
@@ -20,12 +21,10 @@ async function Products() {
           <h2 className="text-xl font-semibold">Produtos</h2>
         </div>
 
-        <Button className=" gap-2 ">
-          <PlusIcon size={20}></PlusIcon>
-          Novo Produto
-        </Button>
+        <CreateProductButton></CreateProductButton>
       </div>
 
+      
       <DataTable
         columns={productsTableColumns}
         data={JSON.parse(JSON.stringify(products))}

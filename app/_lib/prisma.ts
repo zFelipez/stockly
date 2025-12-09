@@ -1,38 +1,29 @@
 import { PrismaClient } from "@prisma/client";
+import {  PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
 
-declare global {
-  // eslint-disable-next-line no-var
-  var cachedPrisma: ReturnType<typeof createPrismaClient>;
-}
+const { Pool } = pg;
 
-const createPrismaClient = () => {
-  return new PrismaClient().$extends({
-    result: {
-      product: {
-        status: {
-          needs: { stock: true },
-          compute(product) {
-            if (product.stock <= 0) {
-              return "OUT_OF_STOCK";
-            }
-            return "IN_STOCK";
-          },
-        },
-      },
-    },
-  });
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
 };
 
-let prisma: ReturnType<typeof createPrismaClient>;
-if (process.env.NODE_ENV === "production") {
-  prisma = createPrismaClient();
-} else {
-  if (!global.cachedPrisma) {
-    global.cachedPrisma = createPrismaClient();
-  }
-  prisma = global.cachedPrisma;
+// Criar Pool do Postgres
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+// Criar adapter
+const adapter = new PrismaPg(pool);
+
+// Criar Prisma Client com adapter
+export const db =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    adapter,
+  });
+
+// Evitar recriação em dev
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = db;
 }
-
-export const db = prisma;
-
-
