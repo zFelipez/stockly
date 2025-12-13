@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import SideBar from "./_components/sidebar";
+import { Toaster } from "sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <div  className=" flex gap-8 h-full">
           <SideBar></SideBar>
           {children}
+          <Toaster />
         </div>
       </body>
     </html>
