@@ -13,3 +13,5 @@ export async function createProduct( data : CreateProductSchema) {
   });
   revalidatePath("/products");
 }
+
+
