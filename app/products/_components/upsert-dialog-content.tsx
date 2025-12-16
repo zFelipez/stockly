@@ -23,11 +23,11 @@ import { DialogClose } from "@/app/_components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  CreateProductSchema,
-  createProductSchema,
-} from "@/app/_actions/product/create-product/schema";
+  UpsertProductSchema,
+  upsertProductSchema,
+} from "@/app/_actions/product/upsert-product/schema";
  
-import { createProduct } from "@/app/_actions/product/create-product/create-product";
+import { upsertProduct } from "@/app/_actions/product/upsert-product/upsert-product";
 
 type FormInput = {
   name: string;
@@ -38,35 +38,38 @@ type FormInput = {
 
 interface UpsertProductDialogContentProps {
   setDialogIsOpen?: (open: boolean) => void;
+  defautlValues? :  UpsertProductSchema;
 }
 
-const UpsertProductDialogContent = ({  setDialogIsOpen}: UpsertProductDialogContentProps) => {
+const UpsertProductDialogContent = ({  setDialogIsOpen, defautlValues}: UpsertProductDialogContentProps) => {
   
 
-  const form = useForm<FormInput, unknown, CreateProductSchema>({
+  const form = useForm<FormInput, unknown, UpsertProductSchema>({
     shouldUnregister: true,
-    resolver: zodResolver(createProductSchema), // Integrando o Zod com o React Hook Form
-    defaultValues: {
+    resolver: zodResolver(upsertProductSchema), // Integrando o Zod com o React Hook Form
+    defaultValues: defautlValues ?? {
       name: "",
       price: 0,
       stock: 1,
     },
   });
 
-  const onSubmit = async (data: CreateProductSchema) => {
+  const onSubmit = async (data: UpsertProductSchema) => {
     try {
-      await createProduct(data);
+      await upsertProduct({...data ,  id: defautlValues?.id});
       setDialogIsOpen?.(false);
     } catch (err) {
       console.log(err);
     }
   };
+
+  const isEditing = defautlValues ? true : false
   return (
     <DialogContent>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <DialogHeader>
-            <DialogTitle>Criar Produto</DialogTitle>
+            <DialogTitle>{ isEditing  ? 'Editar Produto' : 'Criar Produto'}</DialogTitle>
             <DialogDescription>Insira as informações abaixo</DialogDescription>
           </DialogHeader>
 
