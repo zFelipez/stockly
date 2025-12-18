@@ -32,7 +32,7 @@ const SideBar = () => {
          </SideBarButton>
 
         <SideBarButton>
-          <Link href="/vendas">
+          <Link href="/sales">
             <ShoppingBasketIcon size={20}></ShoppingBasketIcon>
             Vendas
           </Link>

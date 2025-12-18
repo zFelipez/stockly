@@ -15,9 +15,7 @@ async function Products() {
     <div className="w-full space-y-8  bg-white m-8 p-8 rounded">
       <div className="flex w-full items-center justify-between">
         <div className="space-y-1">
-          <span className="text-xs font-semibold text-slate-500">
-            Gestão de tempo
-          </span>
+          
           <h2 className="text-xl font-semibold">Produtos</h2>
         </div>
 
