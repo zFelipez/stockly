@@ -82,16 +82,14 @@ export const UpsertSalesDialogContent = ({
     },
   });
 
- 
-
   const totalProducts = useMemo(() => {
     return selectedProducts.reduce((acumulator, product) => {
       return acumulator + product.price * product.quantity;
     }, 0);
   }, [selectedProducts]);
-  
+
   const onDelete = (productId: string) => {
-    console.log(productId)
+    console.log(productId);
     return setSelectedProducts((products) => {
       return products.filter((product) => product.id !== productId);
     });
@@ -105,7 +103,19 @@ export const UpsertSalesDialogContent = ({
       const existingProduct = currentProducts.find(
         (product) => product.id === selectedProduct.id
       );
+
       if (existingProduct) {
+        const productIsOutOfStock =
+          existingProduct.quantity > selectedProduct.stock;
+
+        if (productIsOutOfStock) {
+          form.setError("quantity", {
+            message: "Qauntidade indisponivel em estoque",
+          });
+
+          return currentProducts;
+        }
+        form.reset();
         return currentProducts.map((item) => {
           if (item.id === data.productId) {
             return {
@@ -116,7 +126,14 @@ export const UpsertSalesDialogContent = ({
           return item;
         });
       }
+      const productIsOutOfStock = data.quantity > selectedProduct.stock;
 
+      if (productIsOutOfStock) {
+        form.setError("quantity", {
+          message: "Qauntidade indisponivel em estoque",
+        });
+      }
+      form.reset();
       return [
         ...currentProducts,
         {
@@ -126,8 +143,7 @@ export const UpsertSalesDialogContent = ({
         },
       ];
     });
-    form.reset();
-    
+   
   };
   return (
     <SheetContent className=" !max-w-[700px overflow-auto">
@@ -207,7 +223,10 @@ export const UpsertSalesDialogContent = ({
               </TableCell>
 
               <TableCell>
-                <SalesTableDropwdownMenu product={product} onDelete={onDelete} />
+                <SalesTableDropwdownMenu
+                  product={product}
+                  onDelete={onDelete}
+                />
               </TableCell>
             </TableRow>
           ))}
