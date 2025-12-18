@@ -36,14 +36,15 @@ import { useMemo, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import z from "zod";
+import { SalesTableDropwdownMenu } from "./table-dropwdown-menu";
 
 const formSchema = z.object({
   productId: z.string().uuid({ message: "Produto é obrigatório" }),
   quantity: z.coerce
-      .number()
-      .positive({ message: "A quantidade do estoque é obrigatória" })
-      .int({ message: "Estoque deve ser um número inteiro" })
-      .min(1, { message: "Estoque deve ser no mínimo 1" }),
+    .number()
+    .positive({ message: "A quantidade do estoque é obrigatória" })
+    .int({ message: "Estoque deve ser um número inteiro" })
+    .min(1, { message: "Estoque deve ser no mínimo 1" }),
 });
 
 type UpsertFormSchema = z.infer<typeof formSchema>;
@@ -81,12 +82,20 @@ export const UpsertSalesDialogContent = ({
     },
   });
 
-  const totalProducts = useMemo(()=>{
-     return selectedProducts.reduce((acumulator, product ) =>{
-       return acumulator + product.price * product.quantity
-     },0 )
-  }, [selectedProducts]); 
+ 
 
+  const totalProducts = useMemo(() => {
+    return selectedProducts.reduce((acumulator, product) => {
+      return acumulator + product.price * product.quantity;
+    }, 0);
+  }, [selectedProducts]);
+  
+  const onDelete = (productId: string) => {
+    console.log(productId)
+    return setSelectedProducts((products) => {
+      return products.filter((product) => product.id !== productId);
+    });
+  };
   const onSubmit = (data: UpsertFormSchema) => {
     const selectedProduct = products.find(
       (product) => product.id === data.productId
@@ -118,6 +127,7 @@ export const UpsertSalesDialogContent = ({
       ];
     });
     form.reset();
+    
   };
   return (
     <SheetContent className=" !max-w-[700px overflow-auto">
@@ -163,7 +173,6 @@ export const UpsertSalesDialogContent = ({
                     placeholder="Digite a quantidade de produto"
                     {...field}
                     value={field.value as string | number | undefined}
-                    
                   />
                 </FormControl>
                 <FormMessage />
@@ -184,6 +193,7 @@ export const UpsertSalesDialogContent = ({
             <TableHead>Preço Unitario </TableHead>
             <TableHead> Quantidade</TableHead>
             <TableHead> Total</TableHead>
+            <TableHead> Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -194,6 +204,10 @@ export const UpsertSalesDialogContent = ({
               <TableCell>{product.quantity}</TableCell>
               <TableCell>
                 {transformCurrency(product.price * product.quantity)}
+              </TableCell>
+
+              <TableCell>
+                <SalesTableDropwdownMenu product={product} onDelete={onDelete} />
               </TableCell>
             </TableRow>
           ))}
