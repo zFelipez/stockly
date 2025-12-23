@@ -1,37 +1,34 @@
 "use client";
 
+
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 
-export default function InfiniteMarquee() {
+export default function TechMarquee() {
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
+    if (!trackRef.current) return;
 
-    const firstList = track.children[0] as HTMLElement;
-    const width = firstList.offsetWidth;
-
-    gsap.fromTo(track,
-      {
-        x:0,
-      },
-      {
-        x: -width,
-        duration: 10,
-        ease: "linear",
-        repeat: -1,
-      
+    gsap.to(trackRef.current, {
+      xPercent: -100,
+      duration: 12,
+      repeat: 10,
+      ease: 'circ.inOut',
     });
   }, []);
 
+  
   return (
-    <div className="w-full overflow-hidden  py-6">
-      <div ref={trackRef} className="flex w-max gap-4 ">
+    <div className="w-full overflow-hidden bg-zinc-900 py-6">
+      <div
+        ref={trackRef}
+        className="flex w-max gap-10 whitespace-nowrap"
+      >
+        {/* Primeira lista */}
         <MarqueeItem />
+        {/* Segunda lista (clone) */}
         <MarqueeItem />
-         
       </div>
     </div>
   );
@@ -39,9 +36,9 @@ export default function InfiniteMarquee() {
 
 function MarqueeItem() {
   return (
-    <div className="flex gap-10 pr-10 whitespace-nowrap">
+    <>
       <span className="px-6 py-3 bg-zinc-800 rounded-xl text-white">
-        
+        React
       </span>
       <span className="px-6 py-3 bg-zinc-800 rounded-xl text-white">
         Next.js
@@ -52,6 +49,6 @@ function MarqueeItem() {
       <span className="px-6 py-3 bg-zinc-800 rounded-xl text-white">
         GSAP
       </span>
-    </div>
+    </>
   );
 }
