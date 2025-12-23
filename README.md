@@ -1,7 +1,6 @@
-# stockly
- 
 
-# 📦 Stockly
+
+# Stockly
 
 **Stockly** é uma aplicação web em desenvolvimento para gestão de estoque e produtos, permitindo criar, editar, listar e remover produtos de forma organizada e eficiente.
 
