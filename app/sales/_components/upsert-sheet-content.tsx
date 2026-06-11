@@ -40,6 +40,8 @@ import z from "zod";
 import { SalesTableDropwdownMenu } from "./sales-table-dropwdown-menu";
 import { createSale } from "@/app/_actions/product/sale/create-sale";
 import { toast } from "sonner";
+import { useAction } from "next-safe-action/hooks";
+import { flattenValidationErrors } from "next-safe-action";
 
 const formSchema = z.object({
   productId: z.string().uuid({ message: "Produto é obrigatório" }),
@@ -61,7 +63,6 @@ type UpsertSalesDialogContentProps = {
   product: ComboboxOption[];
   products: Product[];
   setSheetOpen: Dispatch<SetStateAction<boolean>>;
-   
 };
 
 type SelectedProducts = {
@@ -75,11 +76,24 @@ export const UpsertSheetContent = ({
   product,
   products,
   setSheetOpen,
-   
 }: UpsertSalesDialogContentProps) => {
   const [selectedProducts, setSelectedProducts] = useState<SelectedProducts[]>(
     [],
   );
+
+  const { execute: executeCreateSale } = useAction(createSale, {
+    onError: ({error : {validationErrors}}) => {
+       const flattenedErrors =  flattenValidationErrors(validationErrors);
+
+      console.log(flattenedErrors);
+      toast.error(flattenedErrors.formErrors[0]);
+    },
+    onSuccess: () => {
+      toast.success("Venda criada com sucesso");
+      setSheetOpen(false); 
+    },
+  });
+
   const form = useForm<FormSchema, unknown, UpsertFormSchema>({
     shouldUnregister: true,
     resolver: zodResolver(formSchema),
@@ -153,20 +167,12 @@ export const UpsertSheetContent = ({
   };
 
   const onSubmitSale = async () => {
-    try {
-     
-      await createSale({
-        products: selectedProducts.map((product) => ({
-          id: product.id,
-          quantity: product.quantity,
-        })),
-      });
-      toast.success(" Venda adicionada com sucesso");
-      setSheetOpen(false);
-    } catch (error) {
-      console.log(error);
-      toast.error("Erro ao adicionar venda");
-    }
+    executeCreateSale({
+      products: selectedProducts.map((product) => ({
+        id: product.id,
+        quantity: product.quantity,
+      })),
+    });
   };
 
   return (
