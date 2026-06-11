@@ -1,7 +1,7 @@
 import { db } from "@/app/_lib/prisma";
 
 
-//apenas ára referencia 
+//apenas para referencia 
 
 export async function GET() {
   const products = await db.product.findMany({});

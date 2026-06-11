@@ -16,6 +16,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetDescription,
+  SheetFooter,
 } from "@/app/_components/ui/sheet";
 import {
   Table,
@@ -30,13 +31,15 @@ import {
 import { transformCurrency } from "@/app/_helpers/currency";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Product } from "@prisma/client";
-import { PlusIcon } from "lucide-react";
+import { CheckIcon, PlusIcon } from "lucide-react";
 
-import { useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useMemo, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { SalesTableDropwdownMenu } from "./table-dropwdown-menu";
+import { SalesTableDropwdownMenu } from "./sales-table-dropwdown-menu";
+import { createSale } from "@/app/_actions/product/sale/create-sale";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   productId: z.string().uuid({ message: "Produto é obrigatório" }),
@@ -54,10 +57,12 @@ type FormSchema = {
   quantity: unknown;
 };
 
-interface UpsertSalesDialogContentProps {
+type UpsertSalesDialogContentProps = {
   product: ComboboxOption[];
   products: Product[];
-}
+  setSheetOpen: Dispatch<SetStateAction<boolean>>;
+   
+};
 
 type SelectedProducts = {
   id: string;
@@ -66,12 +71,14 @@ type SelectedProducts = {
   quantity: number;
 };
 
-export const UpsertSalesDialogContent = ({
+export const UpsertSheetContent = ({
   product,
   products,
+  setSheetOpen,
+   
 }: UpsertSalesDialogContentProps) => {
   const [selectedProducts, setSelectedProducts] = useState<SelectedProducts[]>(
-    []
+    [],
   );
   const form = useForm<FormSchema, unknown, UpsertFormSchema>({
     shouldUnregister: true,
@@ -96,12 +103,12 @@ export const UpsertSalesDialogContent = ({
   };
   const onSubmit = (data: UpsertFormSchema) => {
     const selectedProduct = products.find(
-      (product) => product.id === data.productId
+      (product) => product.id === data.productId,
     );
     if (!selectedProduct) return;
     setSelectedProducts((currentProducts) => {
       const existingProduct = currentProducts.find(
-        (product) => product.id === selectedProduct.id
+        (product) => product.id === selectedProduct.id,
       );
 
       if (existingProduct) {
@@ -143,8 +150,25 @@ export const UpsertSalesDialogContent = ({
         },
       ];
     });
-   
   };
+
+  const onSubmitSale = async () => {
+    try {
+     
+      await createSale({
+        products: selectedProducts.map((product) => ({
+          id: product.id,
+          quantity: product.quantity,
+        })),
+      });
+      toast.success(" Venda adicionada com sucesso");
+      setSheetOpen(false);
+    } catch (error) {
+      console.log(error);
+      toast.error("Erro ao adicionar venda");
+    }
+  };
+
   return (
     <SheetContent className=" !max-w-[700px overflow-auto">
       <SheetHeader>
@@ -238,6 +262,13 @@ export const UpsertSalesDialogContent = ({
           </TableRow>
         </TableFooter>
       </Table>
+
+      <SheetFooter className=" mt-4 w-full">
+        <Button disabled={selectedProducts.length === 0} onClick={onSubmitSale}>
+          <CheckIcon className=" mr-2" />
+          Finalizar Venda
+        </Button>
+      </SheetFooter>
     </SheetContent>
   );
 };

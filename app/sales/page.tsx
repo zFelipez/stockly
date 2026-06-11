@@ -1,57 +1,30 @@
-"use client";
+import { ComboboxOption } from "../_components/ui/combobox";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
+import { getProduct } from "../_data-access/product/get-product";
+import CreateSaleButton from "./_components/create-sale-button";
 
-export default function InfiniteMarquee() {
-  const trackRef = useRef<HTMLDivElement>(null);
+export default async function Sales() {
+  const products = await getProduct();
 
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
+  const filteredProducts = products.filter((product) => product.stock > 0);
 
-    const firstList = track.children[0] as HTMLElement;
-    const width = firstList.offsetWidth;
-
-    gsap.fromTo(track,
-      {
-        x:0,
-      },
-      {
-        x: -width,
-        duration: 10,
-        ease: "linear",
-        repeat: -1,
-      
-    });
-  }, []);
+  const productsOptions: ComboboxOption[] = filteredProducts.map((product) => ({
+    label: product.name,
+    value: product.id,
+  }));
 
   return (
-    <div className="w-full overflow-hidden  py-6">
-      <div ref={trackRef} className="flex w-max gap-4 ">
-        <MarqueeItem />
-        <MarqueeItem />
-         
+    <div className="w-full space-y-8  bg-white m-8 p-8 rounded">
+      <div className="flex w-full items-center justify-between">
+        <div className="space-y-1">
+          <h2 className="text-xl font-semibold">Produtos</h2>
+        </div>
+
+        <CreateSaleButton
+          products={filteredProducts}
+          productsOptions={productsOptions}
+        />
       </div>
-    </div>
-  );
-}
-
-function MarqueeItem() {
-  return (
-    <div className="flex gap-10 pr-10 whitespace-nowrap">
-      <span className="px-6 py-3 bg-zinc-800 rounded-xl text-white">
-        
-      </span>
-      <span className="px-6 py-3 bg-zinc-800 rounded-xl text-white">
-        Next.js
-      </span>
-      <span className="px-6 py-3 bg-zinc-800 rounded-xl text-white">
-        TypeScript
-      </span>
-      <span className="px-6 py-3 bg-zinc-800 rounded-xl text-white">
-        GSAP
-      </span>
     </div>
   );
 }
