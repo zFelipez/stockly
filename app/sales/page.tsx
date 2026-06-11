@@ -1,7 +1,10 @@
 import { ComboboxOption } from "../_components/ui/combobox";
+import { DataTable } from "../_components/ui/data-table";
 
 import { getProduct } from "../_data-access/product/get-product";
+import { getSales } from "../_data-access/sale/get-sales";
 import CreateSaleButton from "./_components/create-sale-button";
+import { saleTableColumns } from "./_components/table-columns";
 
 export default async function Sales() {
   const products = await getProduct();
@@ -12,6 +15,8 @@ export default async function Sales() {
     label: product.name,
     value: product.id,
   }));
+
+  const sales = await getSales();
 
   return (
     <div className="w-full space-y-8  bg-white m-8 p-8 rounded">
@@ -25,6 +30,8 @@ export default async function Sales() {
           productsOptions={productsOptions}
         />
       </div>
+
+      <DataTable data={sales} columns={saleTableColumns}></DataTable>
     </div>
   );
 }
