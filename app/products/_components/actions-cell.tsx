@@ -75,7 +75,8 @@ export function ActionsCell({ name, id, price, stock }: ActionsCellProps) {
           </DropdownMenuContent>
         </DropdownMenu>
         <UpsertProductDialogContent
-          defautlValues={{
+           key={id} //garante que o formulário seja resetado quando eu abrir o dialog de edição de um produto diferente
+          defaultValues={{
             id: id,
             name: name,
             price: Number(price),

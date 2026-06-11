@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { DialogContent } from "@/app/_components/ui/dialog";
 import {
@@ -26,8 +26,10 @@ import {
   UpsertProductSchema,
   upsertProductSchema,
 } from "@/app/_actions/product/upsert-product/schema";
- 
-import { upsertProduct } from "@/app/_actions/product/upsert-product/upsert-product";
+
+import { upsertProductAction } from "@/app/_actions/product/upsert-product/upsert-product";
+import { toast } from "sonner";
+import { useAction } from "next-safe-action/hooks";
 
 type FormInput = {
   name: string;
@@ -35,41 +37,55 @@ type FormInput = {
   stock: unknown;
 };
 
-
 interface UpsertProductDialogContentProps {
   setDialogIsOpen?: (open: boolean) => void;
-  defautlValues? :  UpsertProductSchema;
+  defaultValues?: UpsertProductSchema;
 }
 
-const UpsertProductDialogContent = ({  setDialogIsOpen, defautlValues}: UpsertProductDialogContentProps) => {
-  
-
+const UpsertProductDialogContent = ({
+  setDialogIsOpen,
+  defaultValues,
+}: UpsertProductDialogContentProps) => {
   const form = useForm<FormInput, unknown, UpsertProductSchema>({
     shouldUnregister: true,
     resolver: zodResolver(upsertProductSchema), // Integrando o Zod com o React Hook Form
-    defaultValues: defautlValues ?? {
-      name: "",
-      price: 0,
-      stock: 1,
+    defaultValues:  {
+      name: defaultValues?.name || "",
+      price: defaultValues?.price || 0,
+      stock: defaultValues?.stock || 1,
     },
   });
 
-  const onSubmit = async (data: UpsertProductSchema) => {
-    try {
-      await upsertProduct({...data ,  id: defautlValues?.id});
+  const isEditing = defaultValues ? true : false;
+
+  const { execute: executeUpsertProduct } = useAction(upsertProductAction, {
+    onSuccess: () => {
+      toast.success(
+        `Produto ${defaultValues ? "atualizado" : "criado"} com sucesso`,
+      );
       setDialogIsOpen?.(false);
-    } catch (err) {
-      console.log(err);
-    }
+    },
+    onError: () => {
+      toast.error(`Erro ao ${defaultValues ? "atualizar" : "criar"} produto`);
+    },
+  });
+  const onSubmit = async (data: UpsertProductSchema) => {
+    
+    await executeUpsertProduct({id : defaultValues?.id, ...data});
   };
 
-  const isEditing = defautlValues ? true : false
   return (
+
+    
+
     <DialogContent>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <DialogHeader>
-            <DialogTitle>{ isEditing  ? 'Editar Produto' : 'Criar Produto'}</DialogTitle>
+            <DialogTitle>
+              {isEditing ? "Editar Produto" : "Criar Produto"}
+               
+            </DialogTitle>
             <DialogDescription>Insira as informações abaixo</DialogDescription>
           </DialogHeader>
 

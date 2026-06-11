@@ -1,19 +1,18 @@
 "use server";
 import { db } from "@/app/_lib/prisma";
 import { revalidatePath } from "next/cache";
-import { upsertProductSchema, UpsertProductSchema } from "./schema";
+import { upsertProductSchema } from "./schema";
+import { actionClient } from "@/app/_lib/safe-action";
 
-export async function upsertProduct(data: UpsertProductSchema) {
-  upsertProductSchema.parse(data); //aqui valida
-
-  await db.product.upsert({
-    where: {
-      id: data.id ?? '', // se eu tenho um id igual aum data.id ele atualiza
-    },
-    update :data
-    ,
-    create:data //se nao ele cria
-    
+export const upsertProductAction = actionClient
+  .schema(upsertProductSchema)
+  .action(async ({ parsedInput: {id , ...rest} }) => {
+    await db.product.upsert({
+      where: {
+        id: id ? id : undefined, // se eu tenho um id igual aum parsedInput.id ele atualiza
+      },
+      update: rest,
+      create: { id, ...rest }, //se nao ele cria
+    });
+    revalidatePath("/products");
   });
-  revalidatePath("/products");
-}

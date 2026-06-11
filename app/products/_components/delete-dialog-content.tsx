@@ -1,4 +1,4 @@
-import { deleteProduct, deleteProductAction } from "@/app/_actions/product/delete-products";
+import { deleteProductAction } from "@/app/_actions/product/delete-products";
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -15,20 +15,20 @@ interface DeleteProductDialogContent {
   productId: string;
 }
 
-export const DeleteProductDialogContent = ({productId}: DeleteProductDialogContent) => {
- 
-  const {execute: executeDeleteProduct} = useAction(deleteProductAction, {
+export const DeleteProductDialogContent = ({
+  productId,
+}: DeleteProductDialogContent) => {
+  const { execute: executeDeleteProduct } = useAction(deleteProductAction, {
     onSuccess: () => {
       toast.success("Produto deletado com sucesso");
     },
     onError: () => {
       toast.error("Erro ao deletar produto");
     },
-  })
-
+  });
 
   const handleConfirmClick = async () => {
-     await executeDeleteProduct({ id: productId });
+    await executeDeleteProduct({ id: productId });
   };
 
   return (
@@ -44,7 +44,9 @@ export const DeleteProductDialogContent = ({productId}: DeleteProductDialogConte
       </AlertDialogHeader>
       <AlertDialogFooter>
         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-        <AlertDialogAction onClick={handleConfirmClick}>Confirmar</AlertDialogAction>
+        <AlertDialogAction onClick={handleConfirmClick}>
+          Confirmar
+        </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   );
