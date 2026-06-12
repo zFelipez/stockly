@@ -37,7 +37,7 @@ import { Dispatch, SetStateAction, useMemo, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { SalesTableDropwdownMenu } from "./sales-table-dropwdown-menu";
+import { UpsertSalesTableDropwdownMenu } from "./upsert-sales-table-dropwdown-menu";
 import { createSale } from "@/app/_actions/product/sale/create-sale";
 import { toast } from "sonner";
 import { useAction } from "next-safe-action/hooks";
@@ -253,7 +253,7 @@ export const UpsertSheetContent = ({
               </TableCell>
 
               <TableCell>
-                <SalesTableDropwdownMenu
+                <UpsertSalesTableDropwdownMenu
                   product={product}
                   onDelete={onDelete}
                 />

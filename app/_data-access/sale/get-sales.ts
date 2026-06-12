@@ -4,7 +4,7 @@ import { db } from "@/app/_lib/prisma";
 
 export type SalesDto = {
   id: string;
-  productsNames: string[];
+  productsNames: string;
   totalOfProducts: number;
   productsAmount: number;
   saleDate: Date;
