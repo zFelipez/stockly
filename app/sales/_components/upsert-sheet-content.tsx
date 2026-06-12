@@ -33,12 +33,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Product } from "@prisma/client";
 import { CheckIcon, PlusIcon } from "lucide-react";
 
-import { Dispatch, SetStateAction, useMemo, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { UpsertSalesTableDropwdownMenu } from "./upsert-sales-table-dropwdown-menu";
-import { createSale } from "@/app/_actions/sale/create-sale";
+import { upsertSale } from "@/app/_actions/sale/upsert-sale";
 import { toast } from "sonner";
 import { useAction } from "next-safe-action/hooks";
 import { flattenValidationErrors } from "next-safe-action";
@@ -59,38 +59,44 @@ type FormSchema = {
   quantity: unknown;
 };
 
-type UpsertSalesDialogContentProps = {
-  product: ComboboxOption[];
-  products: Product[];
-  setSheetOpen: Dispatch<SetStateAction<boolean>>;
-};
-
-type SelectedProducts = {
+export type SelectedProducts = {
   id: string;
   name: string;
   price: number;
   quantity: number;
 };
 
+type UpsertSalesDialogContentProps = {
+  saleId?: string;
+  product: ComboboxOption[];
+  products: Product[];
+  setSheetOpen: Dispatch<SetStateAction<boolean>>;
+  defaultSelectedProducts?: SelectedProducts[];
+};
+
 export const UpsertSheetContent = ({
+  saleId,
   product,
   products,
   setSheetOpen,
+  defaultSelectedProducts,
 }: UpsertSalesDialogContentProps) => {
   const [selectedProducts, setSelectedProducts] = useState<SelectedProducts[]>(
-    [],
+    defaultSelectedProducts ?? [],
   );
 
-  const { execute: executeCreateSale } = useAction(createSale, {
-    onError: ({error : {validationErrors}}) => {
-       const flattenedErrors =  flattenValidationErrors(validationErrors);
+  useEffect(() => {
+    setSelectedProducts(defaultSelectedProducts ?? []);
+  }, [defaultSelectedProducts]);
 
-      console.log(flattenedErrors);
+  const { execute: executeUpsertSale } = useAction(upsertSale, {
+    onError: ({ error: { validationErrors } }) => {
+      const flattenedErrors = flattenValidationErrors(validationErrors);
       toast.error(flattenedErrors.formErrors[0]);
     },
     onSuccess: () => {
       toast.success("Venda criada com sucesso");
-      setSheetOpen(false); 
+      setSheetOpen(false);
     },
   });
 
@@ -167,7 +173,8 @@ export const UpsertSheetContent = ({
   };
 
   const onSubmitSale = async () => {
-    executeCreateSale({
+    executeUpsertSale({
+      saleId,
       products: selectedProducts.map((product) => ({
         id: product.id,
         quantity: product.quantity,
@@ -254,7 +261,7 @@ export const UpsertSheetContent = ({
 
               <TableCell>
                 <UpsertSalesTableDropwdownMenu
-                  product={product}
+                  saleProduct={product}
                   onDelete={onDelete}
                 />
               </TableCell>

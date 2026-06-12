@@ -18,6 +18,14 @@ export default async function Sales() {
 
   const sales = await getSales();
 
+  const tableData = sales.map((sale) => {
+    return {
+      ...sale,
+      products,
+      productsOptions,
+    };
+  });
+
   return (
     <div className="w-full space-y-8  bg-white m-8 p-8 rounded">
       <div className="flex w-full items-center justify-between">
@@ -31,7 +39,7 @@ export default async function Sales() {
         />
       </div>
 
-      <DataTable data={sales} columns={saleTableColumns}></DataTable>
+      <DataTable data={tableData} columns={saleTableColumns}></DataTable>
     </div>
   );
 }

@@ -6,8 +6,15 @@ import { transformCurrency } from "@/app/_helpers/currency";
 import { ColumnDef } from "@tanstack/react-table";
 import {} from "lucide-react";
 import { SaleActionsCell } from "./sale-actions-cell";
+import { Product } from "@prisma/client";
+import { ComboboxOption } from "@/app/_components/ui/combobox";
 
-export const saleTableColumns: ColumnDef<SalesDto>[] = [
+interface SaleTableColumn extends SalesDto {
+  products: Product[];
+  productsOptions: ComboboxOption[];
+}
+
+export const saleTableColumns: ColumnDef<SaleTableColumn>[] = [
   {
     accessorKey: "id",
     header: "Produtos ",
@@ -18,7 +25,7 @@ export const saleTableColumns: ColumnDef<SalesDto>[] = [
     }) => productsNames,
   },
   {
-    accessorKey: "totalProducts",
+    accessorKey: "totalOfProducts",
     header: "Quantidade de Produtos",
     cell: ({ row: { original } }) => original.totalOfProducts,
   },
@@ -29,7 +36,7 @@ export const saleTableColumns: ColumnDef<SalesDto>[] = [
       transformCurrency(Number(original.productsAmount)),
   },
   {
-    accessorKey: "",
+    accessorKey: "saleDate",
     header: "Data da Venda ",
     cell: () => new Date().toLocaleDateString("pt-BR"),
   },
@@ -37,7 +44,7 @@ export const saleTableColumns: ColumnDef<SalesDto>[] = [
     accessorKey: "acoes",
     header: "Ações",
     cell: ({ row: { original: sale } }) => {
-      return <SaleActionsCell sale={sale}></SaleActionsCell>;
+      return <SaleActionsCell  products ={ sale.products} productsOptions= { sale.productsOptions}sale={sale}></SaleActionsCell>;
     },
   },
 ];

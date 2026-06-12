@@ -9,7 +9,7 @@ export const upsertProductAction = actionClient
   .action(async ({ parsedInput: {id , ...rest} }) => {
     await db.product.upsert({
       where: {
-        id: id ? id : undefined, // se eu tenho um id igual aum parsedInput.id ele atualiza
+        id: id ? id : '', // se eu tenho um id igual aum parsedInput.id ele atualiza
       },
       update: rest,
       create: { id, ...rest }, //se nao ele cria

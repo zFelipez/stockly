@@ -1,6 +1,11 @@
 import "server-only";
 
 import { db } from "@/app/_lib/prisma";
+import { Product, SaleProduct } from "@prisma/client";
+
+export type SaleProductWithProduct = SaleProduct & {
+  product: Product;
+};
 
 export type SalesDto = {
   id: string;
@@ -8,6 +13,7 @@ export type SalesDto = {
   totalOfProducts: number;
   productsAmount: number;
   saleDate: Date;
+  saleProducts: SaleProductWithProduct[];
 };
 
 export const getSales = async (): Promise<SalesDto[]> => {
@@ -22,9 +28,9 @@ export const getSales = async (): Promise<SalesDto[]> => {
   });
 
   const formattedSales = sales.map((sale) => {
-    const productsNames = sale.products.map(
-      (productObject) => productObject.product.name,
-    ).join(' · ');
+    const productsNames = sale.products
+      .map((productObject) => productObject.product.name)
+      .join(" · ");
 
     const totalOfProducts = sale.products.reduce(
       (acc, productObject) => Number(productObject.quantity) + acc,
@@ -43,6 +49,7 @@ export const getSales = async (): Promise<SalesDto[]> => {
       totalOfProducts,
       productsAmount,
       saleDate: sale.createdAt,
+      saleProducts: sale.products,
     };
   });
 
