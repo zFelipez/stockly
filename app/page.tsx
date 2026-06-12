@@ -1,14 +1,13 @@
+import { Header, HeaderTitle } from "./_components/header";
 
-
-
-
- const HomePage = () => {
+const HomePage = () => {
   return (
-    <div>
-      <h1>Welcome to Stockly</h1>
-      <p>Your one-stop solution for stock market insights.</p>
+    <div className="w-full space-y-8  bg-white m-8 p-8 rounded">
+      <Header>
+        <HeaderTitle> Dashboard </HeaderTitle>
+      </Header>
     </div>
   );
-} 
+};
 
-export default HomePage ; 
+export default HomePage;

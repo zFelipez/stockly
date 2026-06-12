@@ -1,3 +1,4 @@
+import { Header, HeaderTitle } from "../_components/header";
 import { ComboboxOption } from "../_components/ui/combobox";
 import { DataTable } from "../_components/ui/data-table";
 
@@ -28,16 +29,17 @@ export default async function Sales() {
 
   return (
     <div className="w-full space-y-8  bg-white m-8 p-8 rounded">
-      <div className="flex w-full items-center justify-between">
-        <div className="space-y-1">
-          <h2 className="text-xl font-semibold">Produtos</h2>
-        </div>
+      <Header
+        button={
+          <CreateSaleButton
+            products={filteredProducts}
+            productsOptions={productsOptions}
+          />
+        }
 
-        <CreateSaleButton
-          products={filteredProducts}
-          productsOptions={productsOptions}
-        />
-      </div>
+      >
+        <HeaderTitle> Gestão de Vendas </HeaderTitle>
+      </Header>
 
       <DataTable data={tableData} columns={saleTableColumns}></DataTable>
     </div>
