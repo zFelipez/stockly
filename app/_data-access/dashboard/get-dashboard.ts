@@ -1,9 +1,10 @@
 import { db } from "@/app/_lib/prisma";
 import "server-only";
 import dayjs from "dayjs";
+import { Prisma } from "@prisma/client";
 
 export type DayTotalRevenue = {
-  day: string ;
+  day: string;
   totalRevenue: number;
 };
 
@@ -16,82 +17,83 @@ export type DashboardDataDto = {
   totalLast14DaysRevenue: DayTotalRevenue[];
 };
 
-export type RevenueResult = {
-  totalRevenue: number | null;
+type RevenueResult = {
+  totalRevenue: Prisma.Decimal | null;
+};
+
+type StockValueResult = {
+  totalStockValue: Prisma.Decimal | null;
 };
 
 export async function getDashboard(): Promise<DashboardDataDto> {
-  const revenueQuery = `
-    SELECT SUM("unitPrice" * "quantity") as "totalRevenue"
+  const startOfToday = dayjs().startOf("day").toDate();
+  const endOfToday = dayjs().endOf("day").toDate();
+
+  const revenueQuery = db.$queryRaw<RevenueResult[]>`
+    SELECT
+      SUM("SaleProduct"."unitPrice" * "SaleProduct"."quantity") as "totalRevenue"
     FROM "SaleProduct"
+    INNER JOIN "Sale"
+      ON "SaleProduct"."saleId" = "Sale"."id"
   `;
 
-  const revenueTodayQuery = `
-    SELECT SUM("unitPrice" * "quantity") as "totalRevenue"
+  const revenueTodayQuery = db.$queryRaw<RevenueResult[]>`
+    SELECT
+      SUM("SaleProduct"."unitPrice" * "SaleProduct"."quantity") as "totalRevenue"
     FROM "SaleProduct"
-    WHERE "createdAt" >= $1
-    AND "createdAt" <= $2
+    INNER JOIN "Sale"
+      ON "SaleProduct"."saleId" = "Sale"."id"
+    WHERE "Sale"."date" BETWEEN ${startOfToday} AND ${endOfToday}
   `;
 
-  const today = dayjs().endOf("day").toDate();
+  const stockValueQuery = db.$queryRaw<StockValueResult[]>`
+    SELECT
+      SUM("price" * "stock") as "totalStockValue"
+    FROM "Product"
+  `;
 
-  const last14Days = [13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0].map(
-    (daysAgo) => {
-      return dayjs(today).subtract(daysAgo, "day");
-    },
+  const [
+    revenue,
+    revenueToday,
+    totalSales,
+    totalStockValue,
+    totalProducts,
+  ] = await Promise.all([
+    revenueQuery,
+    revenueTodayQuery,
+    db.sale.count(),
+    stockValueQuery,
+    db.product.count(),
+  ]);
+
+  const totalLast14DaysRevenue = await Promise.all(
+    Array.from({ length: 14 }, (_, index) => {
+      const day = dayjs().subtract(13 - index, "day");
+
+      return db
+        .$queryRaw<RevenueResult[]>`
+          SELECT
+            SUM("SaleProduct"."unitPrice" * "SaleProduct"."quantity") as "totalRevenue"
+          FROM "SaleProduct"
+          INNER JOIN "Sale"
+            ON "SaleProduct"."saleId" = "Sale"."id"
+          WHERE "Sale"."date"
+            BETWEEN ${day.startOf("day").toDate()}
+            AND ${day.endOf("day").toDate()}
+        `
+        .then((result) => ({
+          day: day.format("DD/MM"),
+          totalRevenue: Number(result[0]?.totalRevenue ?? 0),
+        }));
+    }),
   );
 
-  const daysTotalRevenue: DayTotalRevenue[] = [];
-
-  for (const day of last14Days) {
-    const dayTotalRevenue = await db.$queryRawUnsafe<
-      { totalRevenue: number }[]
-    >(
-      `
-        SELECT SUM("unitPrice" * "quantity") as "totalRevenue"
-        FROM "SaleProduct"
-        WHERE "createdAt" >= $1
-        AND "createdAt" <= $2
-      `,
-      day.startOf("day").toDate(),
-      day.endOf("day").toDate(),
-    );
-
-    daysTotalRevenue.push({
-      day: day.format("DD/MM"),
-      totalRevenue: Number(dayTotalRevenue[0].totalRevenue) || 0,
-    });
-  }
-
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-
-  const endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999);
-
-  const [revenue, revenueToday, totalSales, totalStockValue, totalProducts] =
-    await Promise.all([
-      db.$queryRawUnsafe<RevenueResult[]>(revenueQuery),
-      db.$queryRawUnsafe<RevenueResult[]>(
-        revenueTodayQuery,
-        startOfDay,
-        endOfDay,
-      ),
-      db.sale.count(),
-      db.product.aggregate({
-        _sum: {
-          stock: true,
-        },
-      }),
-      db.product.count(),
-    ]);
-
   return {
-    revenue: Number(revenue[0]?.totalRevenue) || 0,
-    revenueToday: Number(revenueToday[0]?.totalRevenue) || 0,
+    revenue: Number(revenue[0]?.totalRevenue ?? 0),
+    revenueToday: Number(revenueToday[0]?.totalRevenue ?? 0),
     totalSales,
-    totalStockValue: Number(totalStockValue._sum.stock) || 0,
+    totalStockValue: Number(totalStockValue[0]?.totalStockValue ?? 0),
     totalProducts,
-    totalLast14DaysRevenue: daysTotalRevenue,
+    totalLast14DaysRevenue,
   };
 }
