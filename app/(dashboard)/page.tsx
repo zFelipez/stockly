@@ -13,12 +13,20 @@ import {
 } from "./_components/summary-card";
 import { getDashboard } from "../_data-access/dashboard/get-dashboard";
 import { transformCurrency } from "../_helpers/currency";
+import { RevenueChart } from "./_components/revenue-chart";
 
-const HomePage =  async () => {
-  const { revenue, revenueToday, totalSales, totalStockValue, totalProducts } = await getDashboard();
+const HomePage = async () => {
+  const {
+    revenue,
+    revenueToday,
+    totalSales,
+    totalStockValue,
+    totalProducts,
+    totalLast14DaysRevenue,
+  } = await getDashboard();
 
   return (
-    <div className="w-full space-y-8  bg-white m-8 p-8 rounded">
+    <div className="w-full space-y-8  bg-white m-8 p-8 rounded flex flex-col ">
       <Header>
         <HeaderTitle> Dashboard </HeaderTitle>
       </Header>
@@ -47,7 +55,7 @@ const HomePage =  async () => {
             <CircleDollarSign />
           </SummaryCardIcon>
           <SummaryCardTitle>Vendas Totais</SummaryCardTitle>
-          <SummaryCardValue>{ totalSales}</SummaryCardValue>
+          <SummaryCardValue>{totalSales}</SummaryCardValue>
         </SummaryCard>
 
         <SummaryCard>
@@ -55,7 +63,7 @@ const HomePage =  async () => {
             <PackageIcon />
           </SummaryCardIcon>
           <SummaryCardTitle>Total em Estoque</SummaryCardTitle>
-          <SummaryCardValue>{ totalStockValue}</SummaryCardValue>
+          <SummaryCardValue>{totalStockValue}</SummaryCardValue>
         </SummaryCard>
 
         <SummaryCard>
@@ -63,8 +71,14 @@ const HomePage =  async () => {
             <ShoppingBasketIcon />
           </SummaryCardIcon>
           <SummaryCardTitle>Produtos</SummaryCardTitle>
-          <SummaryCardValue>{ totalProducts}</SummaryCardValue>
+          <SummaryCardValue>{totalProducts}</SummaryCardValue>
         </SummaryCard>
+      </div>
+
+      <div className="flex h-full flex-col overflow-hidden rounded-xl bg-white p-6">
+        <p className=" font-semibold text-lg  text-slate-900">Receita</p>
+       <p className="text-sm text-slate-400">Ultimos 14 dias</p>
+        <RevenueChart data={totalLast14DaysRevenue} />
       </div>
     </div>
   );
