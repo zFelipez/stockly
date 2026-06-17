@@ -14,5 +14,5 @@ export const deleteSaleAction = actionClient
     if (!deletedSale) {
       throw new Error("Erro ao deletar venda");
     }
-    revalidatePath("/sales");
+    revalidatePath("/", "layout");
   });

@@ -104,7 +104,6 @@ export const upsertSale = actionClient
         });
       }
     });
-    revalidatePath("/sales");
-    revalidatePath("/products");
-    revalidatePath("/");
+    
+    revalidatePath("/", 'layout');
   });
