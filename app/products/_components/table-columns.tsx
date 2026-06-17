@@ -1,43 +1,26 @@
 "use client";
- 
-import { Badge } from "@/app/_components/ui/badge";
- 
- 
+
 import { Product } from "@prisma/client";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  CircleIcon,
- 
-} from "lucide-react";
- 
-import { ActionsCell } from "./actions-cell";
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
+import { StatusBadge } from "@/app/_components/status-badge";
 
-const getStatusLabel = (status: string) => {
-  if (status === "IN_STOCK") {
-    console.log(status);
-    return "Em estoque";
-  }
-  console.log(status);
-  return "Fora de Estoque";
-};
 export const productsTableColumns: ColumnDef<Product>[] = [
   {
     accessorKey: "name",
-    header: "Produto ",
+    header: "Produto",
   },
   {
     accessorKey: "price",
-    header: "Valor Unitario",
-    cell : (row) =>{
-      const product = row.row.original
-       return  Intl.NumberFormat('pt-BR',{
-        style: 'currency',
-        currency: 'BRL', 
-       }).format(Number(product.price))
-    }
+    header: "Valor Unitário",
+    cell: (row) => {
+      const product = row.row.original;
+
+      return Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(Number(product.price));
+    },
   },
   {
     accessorKey: "stock",
@@ -45,38 +28,12 @@ export const productsTableColumns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "status",
-    header: "status",
+    header: "Status",
     cell: (row) => {
       const product = row.row.original;
-      const label = getStatusLabel(product.status);
 
-      console.log(label);
       return (
-        <Badge
-          variant={label === "Em estoque" ? "default" : "destructive"}
-          className="gap-1.5"
-        >
-          <CircleIcon
-            size={14}
-            className={
-              label === "Em estoque"
-                ? "fill-primary-foreground"
-                : "fill-destructive-foreground"
-            }
-          ></CircleIcon>
-          {label}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "acoes",
-    header: "Ações",
-    cell: (row) => {
-    
-     
-      return (
-          <ActionsCell name={row.row.original.name} id={row.row.original.id} price={row.row.original.price} stock={row.row.original.stock}></ActionsCell>
+        <StatusBadge status={product.stock > 0 ? "IN_STOCK" : "OUT_OF_STOCK"} />
       );
     },
   },

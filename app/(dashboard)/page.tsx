@@ -14,6 +14,7 @@ import {
 import { getDashboard } from "../_data-access/dashboard/get-dashboard";
 import { transformCurrency } from "../_helpers/currency";
 import { RevenueChart } from "./_components/revenue-chart";
+import { MostSoldProductItem } from "./_components/most-sold-products";
 
 const HomePage = async () => {
   const {
@@ -23,10 +24,11 @@ const HomePage = async () => {
     totalStockValue,
     totalProducts,
     totalLast14DaysRevenue,
+    mostSoldProducts,
   } = await getDashboard();
 
   return (
-    <div className="w-full space-y-8  bg-white m-8 p-8 rounded flex flex-col ">
+    <div className="w-full space-y-6  bg-white my-6 mx-0 p-6 rounded flex flex-col ">
       <Header>
         <HeaderTitle> Dashboard </HeaderTitle>
       </Header>
@@ -75,10 +77,23 @@ const HomePage = async () => {
         </SummaryCard>
       </div>
 
-      <div className="flex h-full flex-col overflow-hidden rounded-xl bg-white p-6">
-        <p className=" font-semibold text-lg  text-slate-900">Receita</p>
-       <p className="text-sm text-slate-400">Ultimos 14 dias</p>
-        <RevenueChart data={totalLast14DaysRevenue} />
+      <div className="grid min-h-0 grid-cols-[2fr,1fr] gap-6">
+        <div className="flex h-full flex-col overflow-hidden rounded-xl bg-white p-6">
+          <p className=" font-semibold text-lg  text-slate-900">Receita</p>
+          <p className="text-sm text-slate-400">Ultimos 14 dias</p>
+          <RevenueChart data={totalLast14DaysRevenue} />
+        </div>
+
+        <div className="flex h-full flex-col overflow-hidden rounded-xl p-6 border shadow-sm">
+          <p className=" font-semibold text-lg  text-slate-900 bg-gray-100 rounded-xl text-center">Produtos mais vendidos </p>
+ 
+          <div className=" mt-6 space-y-1 flex flex-col gap-4 overflow-y-auto">
+            
+            {mostSoldProducts.map((product) => (
+              <MostSoldProductItem key={product.id} product={product} />
+            ))}
+        </div>
+        </div> 
       </div>
     </div>
   );
