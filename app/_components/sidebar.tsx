@@ -16,14 +16,14 @@ const SideBar = () => {
       </div>
 
       <div className="flex flex-col gap-2  p-2 ">
-        <SideBarButton>
+        <SideBarButton url="/">
           <Link href="/">
             <LayoutGridIcon size={20}></LayoutGridIcon>
             Dashboard
           </Link>
         </SideBarButton>
 
-         <SideBarButton>
+         <SideBarButton url="/products">
 
             <Link href="/products">
             <PackageIcon size={20}></PackageIcon>
@@ -31,7 +31,7 @@ const SideBar = () => {
           </Link>
          </SideBarButton>
 
-        <SideBarButton>
+        <SideBarButton url="/sales">
           <Link href="/sales">
             <ShoppingBasketIcon size={20}></ShoppingBasketIcon>
             Vendas
