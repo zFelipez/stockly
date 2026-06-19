@@ -10,7 +10,7 @@ async function Products() {
   const products = await getProduct();
 
   return (
-    <div className="w-full space-y-8  bg-white m-8 p-8 rounded overflow-auto">
+    <div className="w-full space-y-6  bg-white my-6 mx-0 p-6 rounded overflow-auto">
       <Header button={<CreateProductButton></CreateProductButton>}>
         <HeaderTitle> Gestão de Produtos </HeaderTitle>
       </Header>
