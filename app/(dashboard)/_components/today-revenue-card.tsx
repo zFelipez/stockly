@@ -16,8 +16,8 @@ export async function TodayRevenueCard() {
       <SummaryCardIcon>
         <DollarSignIcon />
       </SummaryCardIcon>
-      <SummaryCardTitle>Receita Hoje </SummaryCardTitle>
-      <SummaryCardValue>{transformCurrency(revenueToday)}</SummaryCardValue>
+      <SummaryCardTitle><span className=" font-semibold text-lg">Receita Hoje</span></SummaryCardTitle>
+      <SummaryCardValue><span className=" font-semibold text-lg">{transformCurrency(revenueToday)}</span></SummaryCardValue>
     </SummaryCard>
   );
 }

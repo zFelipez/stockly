@@ -16,8 +16,11 @@ export async function TotalRevenueCard() {
       <SummaryCardIcon>
         <DollarSignIcon />
       </SummaryCardIcon>
-      <SummaryCardTitle>Receita</SummaryCardTitle>
-      <SummaryCardValue>{transformCurrency(totalRevenue)}</SummaryCardValue>
+      <SummaryCardTitle>
+        <span className=" font-semibold text-lg">Receita Total</span>
+      </SummaryCardTitle>
+
+      <SummaryCardValue><span className=" font-semibold text-lg">{transformCurrency(totalRevenue)}</span></SummaryCardValue>
     </SummaryCard>
   );
 }
