@@ -15,5 +15,5 @@ export function SummaryCardValue({ children }: { children: React.ReactNode }) {
 }
 
 export function SummaryCard({ children }: { children: React.ReactNode }) {
-  return <div className="bg-gray-100 p-4 rounded-xl gap-2 flex flex-col">{children}</div>;
+  return <div className="bg-gray-100 p-4 rounded-xl gap-2 flex flex-col hover:bg-gray-200 transition-colors">{children}</div>;
 }

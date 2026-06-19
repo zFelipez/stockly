@@ -8,7 +8,7 @@ type MostSoldProductsProps = {
 
 export function MostSoldProductItem({ product }: MostSoldProductsProps) {
   return (
-    <div className="flex items-center justify-between p-3 bg-gray-100 rounded-xl">
+    <div className="flex items-center justify-between p-3 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">
       <div className="space-y-[6px]">
         <StatusBadge status={product.status}></StatusBadge>
         <p className="font-semibold text-lg text-slate-900">{product.name}</p>
