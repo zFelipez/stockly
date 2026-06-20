@@ -9,18 +9,44 @@ export const deleteProductAction = actionClient
   .schema(deleteIdSchema)
   .action(async ({ parsedInput: { id } }) => {
     await db.$transaction(async (trx) => {
-      const sale = await trx.sale.findUnique({
+      const saleProducts = await trx.saleProduct.findMany({
         where: {
-          id: id,
+          productId: id,
         },
-
-        include: {
-          products: true,
+        select: {
+          saleId: true,
         },
       });
 
-      if (!sale) {
-        return;
+      const saleIds = [
+        ...new Set(saleProducts.map((saleProduct) => saleProduct.saleId)),
+      ];
+
+      if (saleIds.length > 0) {
+        const sales = await trx.sale.findMany({
+          where: {
+            id: {
+              in: saleIds,
+            },
+          },
+          include: {
+            products: true,
+          },
+        });
+
+        const salesToDelete = sales
+          .filter((sale) => sale.products.length === 1)
+          .map((sale) => sale.id);
+
+        if (salesToDelete.length > 0) {
+          await trx.sale.deleteMany({
+            where: {
+              id: {
+                in: salesToDelete,
+              },
+            },
+          });
+        }
       }
 
       await trx.product.delete({
@@ -28,19 +54,6 @@ export const deleteProductAction = actionClient
           id,
         },
       });
-
-      for (const product of sale.products) {
-        await trx.product.update({
-          where: {
-            id: product.productId,
-          },
-          data: {
-            stock: {
-              increment: product.quantity,
-            },
-          },
-        });
-      }
     });
 
     revalidatePath("/", "layout");
